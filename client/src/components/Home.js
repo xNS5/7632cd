@@ -87,7 +87,7 @@ const Home = ({ user, logout }) => {
           convo.id = message.conversationId;
         }
       });
-      setConversations(conversations);
+      setConversations((prev) => [...prev]);
     },
     [setConversations, conversations],
   );
@@ -195,6 +195,10 @@ const Home = ({ user, logout }) => {
       fetchConversations();
     }
   }, [user]);
+
+  useEffect(() => {
+
+  })
 
   const handleLogout = async () => {
     if (user && user.id) {
