@@ -87,7 +87,7 @@ const Home = ({ user, logout }) => {
           convo.id = message.conversationId;
         }
       });
-      setConversations(conversations);
+      setConversations((prev) => [...prev]);
     },
     [setConversations, conversations],
   );
@@ -104,15 +104,14 @@ const Home = ({ user, logout }) => {
         };
         newConvo.latestMessageText = message.text;
         setConversations((prev) => [newConvo, ...prev]);
-      } else {
-        conversations.forEach((convo) => {
-          if (convo.id === message.conversationId) {
-            convo.messages.push(message);
-            convo.latestMessageText = message.text;
-          }
-        });
-        setConversations((conversations) => conversations);
       }
+      conversations.forEach((convo) => {
+        if (convo.id === message.conversationId) {
+          convo.messages.push(message);
+          convo.latestMessageText = message.text;
+        }
+      });
+      setConversations(conversations);
     },
     [setConversations, conversations],
   );
@@ -193,6 +192,10 @@ const Home = ({ user, logout }) => {
       fetchConversations();
     }
   }, [user]);
+
+  useEffect(() => {
+
+  })
 
   const handleLogout = async () => {
     if (user && user.id) {
