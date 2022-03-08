@@ -12,26 +12,22 @@ const bob = {
 };
 
 describe("Bug Fix: Sending Messages", () => {
-  // it("setup", () => {
-  //   cy.signup(alice.username, alice.email, alice.password);
-  //   cy.logout();
-  //   cy.signup(bob.username, bob.email, bob.password);
-  //   cy.logout();
-  // });
+  it("setup", () => {
+    cy.signup(alice.username, alice.email, alice.password);
+    cy.logout();
+    cy.signup(bob.username, bob.email, bob.password);
+    cy.logout();
+  });
 
   it("sends message in a new conversation", () => {
     cy.login(alice.username, alice.password);
 
     cy.get("input[name=search]").type("Bob");
     cy.contains("Bob").click();
-    cy.wait(500)
 
     cy.get("input[name=text]").type("First message{enter}");
-    cy.wait(500)
     cy.get("input[name=text]").type("Second message{enter}");
-    cy.wait(500)
     cy.get("input[name=text]").type("Third message{enter}");
-    cy.wait(500)
 
     cy.contains("First message");
     cy.contains("Second message");
@@ -62,13 +58,10 @@ describe("Bug Fix: Sending Messages", () => {
 
     cy.get("input[name=search]").type("Bob");
     cy.contains("Bob").click();
-    cy.wait(500)
+
     cy.get("input[name=text]").type("Fourth message{enter}");
-    cy.wait(500)
     cy.get("input[name=text]").type("Fifth message{enter}");
-    cy.wait(500)
     cy.get("input[name=text]").type("Sixth message{enter}");
-    cy.wait(500)
 
     cy.contains("Fourth message");
     cy.contains("Fifth message");
