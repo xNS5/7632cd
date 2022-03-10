@@ -90,11 +90,13 @@ const Home = ({ user, logout }) => {
   const addNewConvo = useCallback(
     (recipientId, message) => {
       const newConversations = _.cloneDeep(conversations)
-      newConversations.forEach((convo) => {
+      newConversations.forEach((convo, i) => {
         if (convo.otherUser.id === recipientId) {
           convo.messages.push(message);
           convo.latestMessageText = message.text;
           convo.id = message.conversationId;
+          newConversations.splice(i, 1);
+          newConversations.unshift(convo);
         }
       });
       setConversations(newConversations);
