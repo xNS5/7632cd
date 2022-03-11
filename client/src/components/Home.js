@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState, useContext } from "react";
+import _ from "lodash"
 import axios from "axios";
 import { useHistory } from "react-router-dom";
 import { Grid, CssBaseline, Button } from "@material-ui/core";
@@ -13,6 +14,15 @@ const useStyles = makeStyles((theme) => ({
     height: "100vh",
   },
 }));
+
+// function compare(a, b){
+//   const d1 = new Date(a.messages[a.messages.length-1].createdAt).getDate();
+//   const d2 = new Date(a.messages[a.messages.length-1].createdAt).getDate();
+//   if(d1 > d2){
+//     return 1
+//   }
+//   return 0
+// }
 
 const Home = ({ user, logout }) => {
   const history = useHistory();
@@ -71,7 +81,6 @@ const Home = ({ user, logout }) => {
       } else {
         addMessageToConversation(data);
       }
-
       sendMessage(data, body);
     } catch (error) {
       console.error(error);
@@ -80,14 +89,17 @@ const Home = ({ user, logout }) => {
 
   const addNewConvo = useCallback(
     (recipientId, message) => {
-      conversations.forEach((convo) => {
+      const newConversations = _.cloneDeep(conversations)
+      newConversations.forEach((convo, i) => {
         if (convo.otherUser.id === recipientId) {
           convo.messages.push(message);
           convo.latestMessageText = message.text;
           convo.id = message.conversationId;
+          newConversations.splice(i, 1);
+          newConversations.unshift(convo);
         }
       });
-      setConversations((prev) => [...prev]);
+      setConversations(newConversations);
     },
     [setConversations, conversations],
   );
@@ -104,16 +116,17 @@ const Home = ({ user, logout }) => {
           };
           newConvo.latestMessageText = message.text;
           setConversations((prev) => [newConvo, ...prev]);
-        } else {
-          conversations.forEach((convo) => {
-            if (convo.id === message.conversationId) {
-              convo.messages.push(message);
-              convo.latestMessageText = message.text;
-            }
-          });
-          setConversations((prev) => [...prev]);
         }
-
+        const updatedConversations = _.cloneDeep(conversations)
+        updatedConversations.forEach((convo, i) => {
+          if (convo.id === message.conversationId) {
+            convo.messages.push(message);
+            convo.latestMessageText = message.text;
+            updatedConversations.splice(i, 1);
+            updatedConversations.unshift(convo);
+          }
+        });
+        setConversations(updatedConversations);
       },
       [setConversations, conversations],
   );
@@ -195,10 +208,6 @@ const Home = ({ user, logout }) => {
       fetchConversations();
     }
   }, [user]);
-
-  useEffect(() => {
-
-  })
 
   const handleLogout = async () => {
     if (user && user.id) {
