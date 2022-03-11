@@ -15,15 +15,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-// function compare(a, b){
-//   const d1 = new Date(a.messages[a.messages.length-1].createdAt).getDate();
-//   const d2 = new Date(a.messages[a.messages.length-1].createdAt).getDate();
-//   if(d1 > d2){
-//     return 1
-//   }
-//   return 0
-// }
-
 const Home = ({ user, logout }) => {
   const history = useHistory();
 
@@ -69,6 +60,7 @@ const Home = ({ user, logout }) => {
       message: data.message,
       recipientId: body.recipientId,
       sender: data.sender,
+      read: false
     });
   };
 
