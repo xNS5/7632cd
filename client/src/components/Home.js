@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState, useContext } from "react";
-import _ from "lodash"
 import axios from "axios";
 import { useHistory } from "react-router-dom";
 import { Grid, CssBaseline, Button } from "@material-ui/core";
@@ -14,15 +13,6 @@ const useStyles = makeStyles((theme) => ({
     height: "100vh",
   },
 }));
-
-// function compare(a, b){
-//   const d1 = new Date(a.messages[a.messages.length-1].createdAt).getDate();
-//   const d2 = new Date(a.messages[a.messages.length-1].createdAt).getDate();
-//   if(d1 > d2){
-//     return 1
-//   }
-//   return 0
-// }
 
 const Home = ({ user, logout }) => {
   const history = useHistory();
@@ -89,14 +79,22 @@ const Home = ({ user, logout }) => {
 
   const addNewConvo = useCallback(
     (recipientId, message) => {
-      const newConversations = _.cloneDeep(conversations)
-      newConversations.forEach((convo, i) => {
+      let newConversations = conversations.map((convo, i) => {
         if (convo.otherUser.id === recipientId) {
-          convo.messages.push(message);
-          convo.latestMessageText = message.text;
-          convo.id = message.conversationId;
+          const tempCopy = {...convo, messages: [...convo.messages]};
+          tempCopy.messages.push(message);
+          tempCopy.latestMessageText = message.text;
+          tempCopy.id = message.conversationId;
+          return  tempCopy;
+        } else {
+          return convo;
+        }
+      });
+      // Reordering messages based on the recipient ID
+      newConversations.forEach((convo, i) => {
+        if(convo.otherUser.id === recipientId){
           newConversations.splice(i, 1);
-          newConversations.unshift(convo);
+          newConversations.unshift(convo)
         }
       });
       setConversations(newConversations);
@@ -117,15 +115,23 @@ const Home = ({ user, logout }) => {
           newConvo.latestMessageText = message.text;
           setConversations((prev) => [newConvo, ...prev]);
         }
-        const updatedConversations = _.cloneDeep(conversations)
+        let updatedConversations = conversations.map((convo, i) => {
+            if (convo.id === message.conversationId) {
+              const  tempCopy = {...convo, messages: [...convo.messages]}
+              tempCopy.messages.push(message);
+              tempCopy.latestMessageText = message.text;
+              return  tempCopy
+            } else {
+              return convo
+            }
+          });
+        // Reordering the messages according to the conversation ID.
         updatedConversations.forEach((convo, i) => {
-          if (convo.id === message.conversationId) {
-            convo.messages.push(message);
-            convo.latestMessageText = message.text;
+          if(convo.id === message.conversationId){
             updatedConversations.splice(i, 1);
             updatedConversations.unshift(convo);
           }
-        });
+        })
         setConversations(updatedConversations);
       },
       [setConversations, conversations],
