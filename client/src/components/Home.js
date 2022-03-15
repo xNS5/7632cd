@@ -62,16 +62,15 @@ const Home = ({ user, logout }) => {
     });
   };
 
-  const postMessage = (body) => {
+  const postMessage = async (body) => {
     try {
-      const data = saveMessage(body);
+      const data = await saveMessage(body);
 
       if (!body.conversationId) {
         addNewConvo(body.recipientId, data.message);
       } else {
         addMessageToConversation(data);
       }
-
       sendMessage(data, body);
     } catch (error) {
       console.error(error);
@@ -80,42 +79,64 @@ const Home = ({ user, logout }) => {
 
   const addNewConvo = useCallback(
     (recipientId, message) => {
-      conversations.forEach((convo) => {
+      let newConversations = conversations.map((convo, i) => {
         if (convo.otherUser.id === recipientId) {
-          convo.messages.push(message);
-          convo.latestMessageText = message.text;
-          convo.id = message.conversationId;
+          const tempCopy = {...convo, messages: [...convo.messages]};
+          tempCopy.messages.push(message);
+          tempCopy.latestMessageText = message.text;
+          tempCopy.id = message.conversationId;
+          return  tempCopy;
+        } else {
+          return convo;
         }
       });
-      setConversations(conversations);
+      // Reordering messages based on the recipient ID
+      newConversations.forEach((convo, i) => {
+        if(convo.otherUser.id === recipientId){
+          newConversations.splice(i, 1);
+          newConversations.unshift(convo)
+        }
+      });
+      setConversations(newConversations);
     },
     [setConversations, conversations],
   );
 
   const addMessageToConversation = useCallback(
-    (data) => {
-      // if sender isn't null, that means the message needs to be put in a brand new convo
-      const { message, sender = null } = data;
-      if (sender !== null) {
-        const newConvo = {
-          id: message.conversationId,
-          otherUser: sender,
-          messages: [message],
-        };
-        newConvo.latestMessageText = message.text;
-        setConversations((prev) => [newConvo, ...prev]);
-      }
-
-      conversations.forEach((convo) => {
-        if (convo.id === message.conversationId) {
-          convo.messages.push(message);
-          convo.latestMessageText = message.text;
+      (data) => {
+        // if sender isn't null, that means the message needs to be put in a brand new convo
+        const { message, sender = null } = data;
+        if (sender !== null) {
+          const newConvo = {
+            id: message.conversationId,
+            otherUser: sender,
+            messages: [message],
+          };
+          newConvo.latestMessageText = message.text;
+          setConversations((prev) => [newConvo, ...prev]);
         }
-      });
-      setConversations(conversations);
-    },
-    [setConversations, conversations],
+        let updatedConversations = conversations.map((convo, i) => {
+            if (convo.id === message.conversationId) {
+              const  tempCopy = {...convo, messages: [...convo.messages]}
+              tempCopy.messages.push(message);
+              tempCopy.latestMessageText = message.text;
+              return  tempCopy
+            } else {
+              return convo
+            }
+          });
+        // Reordering the messages according to the conversation ID.
+        updatedConversations.forEach((convo, i) => {
+          if(convo.id === message.conversationId){
+            updatedConversations.splice(i, 1);
+            updatedConversations.unshift(convo);
+          }
+        })
+        setConversations(updatedConversations);
+      },
+      [setConversations, conversations],
   );
+
 
   const setActiveChat = (username) => {
     setActiveConversation(username);
@@ -183,6 +204,7 @@ const Home = ({ user, logout }) => {
     const fetchConversations = async () => {
       try {
         const { data } = await axios.get("/api/conversations");
+
         setConversations(data);
       } catch (error) {
         console.error(error);
