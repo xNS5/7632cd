@@ -37,14 +37,6 @@ const ActiveChat = ({
     return obj !== {} && obj !== undefined;
   };
 
-  const markRead = async (conversation) => {
-    try{
-
-    } catch(e) {
-      console.log(e)
-    }
-  }
-
   return (
     <Box className={classes.root}>
       {isConversation(conversation) && conversation.otherUser && (
