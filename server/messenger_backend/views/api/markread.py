@@ -13,27 +13,23 @@ class MarkRead(APIView):
             if user.is_anonymous:
                 return HttpResponse(status=401)
 
-            sender_id = user.id
             body = request.data
             conversation_id = body.get("conversationId")
-            text = body.get("text")
             recipient_id = body.get("recipientId")
-            sender = body.get("sender")
 
+            # Requires a conversation ID. If there is none, there's nothing to mark as "read"
             if conversation_id:
-                other_user_messages = Message.objects.filter(conversation_id=conversation_id, senderId=recipient_id).order_by('-createdAt')
-                most_recent = other_user_messages[0]
+                other_user_messages = Message.objects.filter(conversation_id=conversation_id, senderId=recipient_id)
+                most_recent = other_user_messages.last()
                 if not most_recent.readStatus:
-                    last_unread = other_user_messages.filter(readStatus=True)[0]
-                    print(last_unread.to_dict(), most_recent.to_dict())
-                    most_recent.readStatus = True
-                    last_unread.readStatus = False
+                    last_unread = other_user_messages.filter(readStatus=True).last()
+                    most_recent.readStatus, last_unread.readStatus = True, False
                     most_recent.save()
                     last_unread.save()
 
                 return JsonResponse({"message": most_recent.to_dict()})
-
-            return JsonResponse({"message": "Response"})
+            else:
+                return
 
         except Exception as e:
             print(e)
