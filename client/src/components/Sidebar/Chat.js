@@ -25,7 +25,7 @@ const Chat = ({ conversation, setActiveChat, postRead }) => {
     await setActiveChat(conversation.otherUser.username);
     const reqBody = {
       conversationId: conversation.id,
-      recipientId: conversation.otherUser.id
+      senderId: conversation.otherUser.id
     }
     await postRead(reqBody)
   };

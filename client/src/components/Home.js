@@ -68,6 +68,14 @@ const Home = ({ user, logout }) => {
     });
   };
 
+  const sendRead = (data, body) => {
+    socket.emit("mark-read", {
+      readStatus: true,
+      conversationId: data.conversationId,
+      sender: data.recipientId
+    });
+  }
+
   const postMessage = async (body) => {
     try {
       const data = await saveMessage(body);
