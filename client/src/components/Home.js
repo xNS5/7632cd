@@ -54,6 +54,11 @@ const Home = ({ user, logout }) => {
     return data;
   };
 
+  const saveRead = async(body) => {
+    const { data } = await axios.post("/api/messages/markread", body);
+    return data;
+  }
+
   const sendMessage = (data, body) => {
     socket.emit("new-message", {
       message: data.message,
@@ -66,7 +71,6 @@ const Home = ({ user, logout }) => {
   const postMessage = async (body) => {
     try {
       const data = await saveMessage(body);
-
       if (!body.conversationId) {
         addNewConvo(body.recipientId, data.message);
       } else {
@@ -77,6 +81,11 @@ const Home = ({ user, logout }) => {
       console.error(error);
     }
   };
+
+  const postRead = async (body) => {
+    const data = await saveRead(body);
+    console.log(data);
+  }
 
   const addNewConvo = useCallback(
     (recipientId, message) => {
@@ -233,6 +242,7 @@ const Home = ({ user, logout }) => {
           clearSearchedUsers={clearSearchedUsers}
           addSearchedUsers={addSearchedUsers}
           setActiveChat={setActiveChat}
+          postRead={postRead}
         />
         <ActiveChat
           activeConversation={activeConversation}

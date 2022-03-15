@@ -17,12 +17,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Chat = ({ conversation, setActiveChat }) => {
+const Chat = ({ conversation, setActiveChat, postRead }) => {
   const classes = useStyles();
   const { otherUser } = conversation;
 
   const handleClick = async (conversation) => {
     await setActiveChat(conversation.otherUser.username);
+    const reqBody = {
+      conversationId: conversation.id,
+      recipientId: conversation.otherUser.id
+    }
+    await postRead(reqBody)
   };
 
   return (
