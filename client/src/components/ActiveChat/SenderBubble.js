@@ -25,17 +25,20 @@ const useStyles = makeStyles(() => ({
     background: '#F4F6FA',
     borderRadius: '10px 10px 0 10px',
   },
+  readMarker: {
+    color: '#6d94cf',
+    padding: 2.5,
+  }
 }));
 
-const SenderBubble = ({ time, text }) => {
+const SenderBubble = ({ time, text, read }) => {
   const classes = useStyles();
-
   return (
     <Box className={classes.root}>
-      <Typography className={classes.date}>{time}</Typography>
       <Box className={classes.bubble}>
         <Typography className={classes.text}>{text}</Typography>
       </Box>
+      <Typography className={classes.date}>{ read === true ?  <span className={classes.readMarker}> &#10003;</span> : null}{time}</Typography>
     </Box>
   );
 };

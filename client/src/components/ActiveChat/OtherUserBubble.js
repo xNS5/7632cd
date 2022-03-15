@@ -42,12 +42,12 @@ const OtherUserBubble = ({ text, time, otherUser }) => {
         className={classes.avatar}
       />
       <Box>
-        <Typography className={classes.usernameDate}>
-          {otherUser.username} {time}
-        </Typography>
         <Box className={classes.bubble}>
           <Typography className={classes.text}>{text}</Typography>
         </Box>
+        <Typography className={classes.usernameDate}>
+          {otherUser.username} {time}
+        </Typography>
       </Box>
     </Box>
   );

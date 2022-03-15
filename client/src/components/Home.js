@@ -54,7 +54,7 @@ const Home = ({ user, logout }) => {
     return data;
   };
 
-  const saveRead = async(body) => {
+  const saveRead = async (body) => {
     const { data } = await axios.post("/api/messages/markread", body);
     return data;
   }
@@ -64,7 +64,7 @@ const Home = ({ user, logout }) => {
       message: data.message,
       recipientId: body.recipientId,
       sender: data.sender,
-      read: false
+      readStatus: false
     });
   };
 
@@ -83,8 +83,14 @@ const Home = ({ user, logout }) => {
   };
 
   const postRead = async (body) => {
-    const data = await saveRead(body);
-    console.log(data);
+    try{
+      if(body.conversationId){
+        const data = await saveRead(body);
+        console.log(data)
+      }
+    } catch(error) {
+      console.log(error)
+    }
   }
 
   const addNewConvo = useCallback(
