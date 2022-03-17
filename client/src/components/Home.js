@@ -68,11 +68,10 @@ const Home = ({ user, logout }) => {
     });
   };
 
-  const sendRead = (data, body) => {
+  const sendRead = (data) => {
     socket.emit("mark-read", {
-      readStatus: true,
-      conversationId: data.conversationId,
-      sender: data.recipientId
+      conversationId: data.message.conversationId,
+      sender: data.message.senderId
     });
   }
 
@@ -94,7 +93,8 @@ const Home = ({ user, logout }) => {
     try{
       if(body.conversationId){
         const data = await saveRead(body);
-        console.log(data)
+        markConvoAsRead(data);
+        sendRead(data)
       }
     } catch(error) {
       console.log(error)
@@ -139,15 +139,13 @@ const Home = ({ user, logout }) => {
           newConvo.latestMessageText = message.text;
           setConversations((prev) => [newConvo, ...prev]);
         }
-        let updatedConversations = conversations.map((convo, i) => {
+        let updatedConversations = conversations.map((convo) => {
+            const  tempCopy = {...convo, messages: [...convo.messages]}
             if (convo.id === message.conversationId) {
-              const  tempCopy = {...convo, messages: [...convo.messages]}
               tempCopy.messages.push(message);
               tempCopy.latestMessageText = message.text;
-              return  tempCopy
-            } else {
-              return convo
             }
+           return tempCopy
           });
         // Reordering the messages according to the conversation ID.
         updatedConversations.forEach((convo, i) => {
@@ -156,10 +154,35 @@ const Home = ({ user, logout }) => {
             updatedConversations.unshift(convo);
           }
         })
+
         setConversations(updatedConversations);
       },
       [setConversations, conversations],
   );
+
+  const markConvoAsRead = useCallback((data) => {
+    const { message } = data;
+
+    let readConversations = conversations.map((convo) => {
+      if(convo.id === message.conversationId){
+        let tempCopy = {...convo, messages: [...convo.messages]}
+        let len = tempCopy.messages.length;
+        if(tempCopy.messages[len-1].senderId !== user.id){
+          tempCopy.messages[len-1].readStatus = true;
+        }
+        for(let i = len-2; i >= 0; i--){
+          if(tempCopy.messages[i].readStatus === true && tempCopy.messages[i].senderId !== user.id){
+            tempCopy.messages[i].readStatus = false;
+          }
+        }
+        return tempCopy;
+      } else {
+        return convo;
+      }
+    });
+    console.log(readConversations)
+    setConversations(readConversations);
+  }, [conversations, setConversations, user])
 
 
   const setActiveChat = (username) => {
@@ -201,6 +224,7 @@ const Home = ({ user, logout }) => {
     socket.on("add-online-user", addOnlineUser);
     socket.on("remove-offline-user", removeOfflineUser);
     socket.on("new-message", addMessageToConversation);
+    socket.on("mark-read", markConvoAsRead)
 
     return () => {
       // before the component is destroyed
@@ -208,8 +232,9 @@ const Home = ({ user, logout }) => {
       socket.off("add-online-user", addOnlineUser);
       socket.off("remove-offline-user", removeOfflineUser);
       socket.off("new-message", addMessageToConversation);
+      socket.off("mark-read", markConvoAsRead)
     };
-  }, [addMessageToConversation, addOnlineUser, removeOfflineUser, socket]);
+  }, [addMessageToConversation, markConvoAsRead, addOnlineUser, removeOfflineUser, socket]);
 
   useEffect(() => {
     // when fetching, prevent redirect
@@ -263,6 +288,7 @@ const Home = ({ user, logout }) => {
           conversations={conversations}
           user={user}
           postMessage={postMessage}
+          postRead={postRead}
         />
       </Grid>
     </>
