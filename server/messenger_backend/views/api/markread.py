@@ -19,19 +19,19 @@ class MarkRead(APIView):
 
             # Requires a conversation ID. If there is none, there's nothing to mark as "read"
             if conversation_id:
-                other_user_messages = Message.objects.filter(conversation_id=conversation_id, senderId=sender_id)
-                most_recent = other_user_messages.last()
-                if not most_recent.readStatus:
-                    last_unread = other_user_messages.filter(readStatus=True)
-                    last_unread = last_unread.last()
-                    if last_unread.id != most_recent.id:
-                        last_unread.readStatus = False
-                        last_unread.save()
+                user_messages = Message.objects.filter(conversation_id=conversation_id, senderId=sender_id)
+                most_recent = user_messages.last()
+                if most_recent:
+                    if not most_recent.readStatus:
+                        last_unread = user_messages.filter(readStatus=True).last()
+                        if last_unread:
+                            last_unread.readStatus = False
+                            last_unread.save()
+                    most_recent.readStatus = True
+                    most_recent.save()
+                    most_recent = most_recent.to_dict()
 
-                most_recent.readStatus = True
-                most_recent.save()
-
-                return JsonResponse({"message": most_recent.to_dict()})
+                return JsonResponse({"message": most_recent})
             else:
                 return JsonResponse(status=200, data={""})
 

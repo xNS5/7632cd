@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Box, Typography } from '@material-ui/core';
+import {Avatar, Box, Typography} from '@material-ui/core';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -25,10 +25,21 @@ const useStyles = makeStyles(() => ({
     background: '#F4F6FA',
     borderRadius: '10px 10px 0 10px',
   },
+  readMarker: {
+    height: 'auto',
+    width: 20,
+    marginTop: 10,
+    float: 'right'
+  }
 }));
 
-const SenderBubble = ({ time, text}) => {
+const SenderBubble = ({ time, text, read, otherUser}) => {
   const classes = useStyles();
+  const [status, setStatus] = useState(false);
+
+  if(status !== read){
+    setStatus(read)
+  }
 
   return (
     <Box className={classes.root}>
@@ -36,6 +47,7 @@ const SenderBubble = ({ time, text}) => {
       <Box className={classes.bubble}>
         <Typography className={classes.text}>{text}</Typography>
       </Box>
+      { status === true  ?  <Avatar alt={otherUser.username} src={otherUser.photoUrl} className={classes.readMarker} /> : null}
     </Box>
   );
 };

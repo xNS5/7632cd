@@ -70,8 +70,7 @@ const Home = ({ user, logout }) => {
 
   const sendRead = (data) => {
     socket.emit("mark-read", {
-      conversationId: data.message.conversationId,
-      sender: data.message.senderId
+      conversationId: data.message.conversationId
     });
   }
 
@@ -93,7 +92,6 @@ const Home = ({ user, logout }) => {
     try{
       if(body.conversationId){
         const data = await saveRead(body);
-        markConvoAsRead(data);
         sendRead(data)
       }
     } catch(error) {
@@ -154,35 +152,34 @@ const Home = ({ user, logout }) => {
             updatedConversations.unshift(convo);
           }
         })
-
         setConversations(updatedConversations);
       },
       [setConversations, conversations],
   );
 
   const markConvoAsRead = useCallback((data) => {
-    const { message } = data;
-
-    let readConversations = conversations.map((convo) => {
-      if(convo.id === message.conversationId){
+    const { conversationId } = data;
+    const readConversations = conversations.map((convo) => {
+      if(convo.id === conversationId){
         let tempCopy = {...convo, messages: [...convo.messages]}
-        let len = tempCopy.messages.length;
-        if(tempCopy.messages[len-1].senderId !== user.id){
-          tempCopy.messages[len-1].readStatus = true;
-        }
-        for(let i = len-2; i >= 0; i--){
-          if(tempCopy.messages[i].readStatus === true && tempCopy.messages[i].senderId !== user.id){
-            tempCopy.messages[i].readStatus = false;
+        let userMessages = tempCopy.messages.filter(message => message.sender === user.id)
+        if(!userMessages[userMessages.length-1].readStatus){
+          userMessages[userMessages.length-1].readStatus = true;
+          for(let i = userMessages.length-2; i >= 0; i--){
+            if(userMessages[i].readStatus){
+              userMessages[i].readStatus = false;
+              break;
+            }
           }
         }
+        tempCopy.messages = tempCopy.messages.concat(userMessages);
+        tempCopy.messages = tempCopy.messages.filter((message, i) => tempCopy.messages.indexOf(message) === i)
         return tempCopy;
-      } else {
-        return convo;
       }
+      return convo;
     });
-    console.log(readConversations)
     setConversations(readConversations);
-  }, [conversations, setConversations, user])
+  }, [user, conversations, setConversations])
 
 
   const setActiveChat = (username) => {
@@ -224,7 +221,7 @@ const Home = ({ user, logout }) => {
     socket.on("add-online-user", addOnlineUser);
     socket.on("remove-offline-user", removeOfflineUser);
     socket.on("new-message", addMessageToConversation);
-    socket.on("mark-read", markConvoAsRead)
+    socket.on("mark-read", (data) => {markConvoAsRead(data)})
 
     return () => {
       // before the component is destroyed
