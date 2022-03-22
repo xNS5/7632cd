@@ -68,7 +68,7 @@ const Home = ({ user, logout }) => {
     });
   };
 
-  const sendRead = (data) => {
+  const sendRead = (data, body) => {
     socket.emit("mark-read", {
       conversationId: data.message.conversationId
     });
@@ -158,25 +158,27 @@ const Home = ({ user, logout }) => {
   );
 
   const markConvoAsRead = useCallback((data) => {
-    const { conversationId } = data;
+    const conversationId = data['conversationId'];
     const readConversations = conversations.map((convo) => {
       if(convo.id === conversationId){
         let tempCopy = {...convo, messages: [...convo.messages]}
-        let userMessages = tempCopy.messages.filter(message => message.sender === user.id)
-        if(!userMessages[userMessages.length-1].readStatus){
-          userMessages[userMessages.length-1].readStatus = true;
-          for(let i = userMessages.length-2; i >= 0; i--){
-            if(userMessages[i].readStatus){
-              userMessages[i].readStatus = false;
-              break;
+        let isMarked = false;
+        for(let i = tempCopy.messages.length-1; i>= 0; i--){
+          if(tempCopy.messages[i].senderId === user.id){
+            if(isMarked === false){
+              tempCopy.messages[i].readStatus = true;
+              isMarked = true;
+            } else if(isMarked && tempCopy.messages[i].readStatus){
+              tempCopy.messages[i].readStatus = false;
+              return tempCopy;
             }
           }
         }
-        tempCopy.messages = tempCopy.messages.concat(userMessages);
-        tempCopy.messages = tempCopy.messages.filter((message, i) => tempCopy.messages.indexOf(message) === i)
         return tempCopy;
+      } else {
+        return convo;
       }
-      return convo;
+
     });
     setConversations(readConversations);
   }, [user, conversations, setConversations])
@@ -221,7 +223,7 @@ const Home = ({ user, logout }) => {
     socket.on("add-online-user", addOnlineUser);
     socket.on("remove-offline-user", removeOfflineUser);
     socket.on("new-message", addMessageToConversation);
-    socket.on("mark-read", (data) => {markConvoAsRead(data)})
+    socket.on("mark-read", markConvoAsRead)
 
     return () => {
       // before the component is destroyed

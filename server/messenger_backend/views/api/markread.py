@@ -29,9 +29,8 @@ class MarkRead(APIView):
                             last_unread.save()
                     most_recent.readStatus = True
                     most_recent.save()
-                    most_recent = most_recent.to_dict()
 
-                return JsonResponse({"message": most_recent})
+                return JsonResponse({"message": most_recent.to_dict() if most_recent else ""})
             else:
                 return JsonResponse(status=200, data={""})
 
