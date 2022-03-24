@@ -22,11 +22,14 @@ const Chat = ({ conversation, setActiveChat, user, postRead }) => {
   const { otherUser } = conversation;
 
   const handleClick = async (conversation) => {
-    const reqBody = {
-      conversationId: conversation.id,
-      senderId: otherUser.id
+    const lastMessage = conversation.messages[conversation.messages.length-1];
+    if(lastMessage && lastMessage.senderId !== user.id && lastMessage.readStatus === false){
+      const reqBody = {
+        conversationId: conversation.id,
+        senderId: otherUser.id
+      }
+      await postRead(reqBody)
     }
-    await postRead(reqBody)
     await setActiveChat(conversation.otherUser.username);
   };
 

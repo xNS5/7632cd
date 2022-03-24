@@ -33,7 +33,6 @@ def new_message(sid, message):
 
 @sio.on("mark-read")
 def mark_read(sid, data):
-    print(data)
     sio.emit(
         "mark-read",
         {"conversationId": data['conversationId']},

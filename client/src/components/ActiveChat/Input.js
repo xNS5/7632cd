@@ -15,7 +15,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const Input = ({ otherUser, conversationId, user, postMessage, postRead }) => {
+const Input = ({ otherUser, conversationId, user, postMessage, clickHandler}) => {
   const classes = useStyles();
   const [text, setText] = useState('');
 
@@ -34,17 +34,12 @@ const Input = ({ otherUser, conversationId, user, postMessage, postRead }) => {
       conversationId,
       sender: conversationId ? null : user,
     };
-    const readBody = {
-      conversationId: conversationId,
-      senderId: otherUser.id
-    };
-    await postRead(readBody);
     await postMessage(reqBody);
     setText('');
   };
 
   return (
-    <form className={classes.root} onSubmit={handleSubmit}>
+    <form className={classes.root} onSubmit={handleSubmit} onClick={clickHandler}>
       <FormControl fullWidth hiddenLabel>
         <FilledInput
           classes={{ root: classes.input }}

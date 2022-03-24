@@ -68,7 +68,7 @@ const Home = ({ user, logout }) => {
     });
   };
 
-  const sendRead = (data, body) => {
+  const sendRead = (data) => {
     socket.emit("mark-read", {
       conversationId: data.message.conversationId
     });
@@ -125,7 +125,7 @@ const Home = ({ user, logout }) => {
   );
 
   const addMessageToConversation = useCallback(
-      (data) => {
+      async (data) => {
         // if sender isn't null, that means the message needs to be put in a brand new convo
         const { message, sender = null } = data;
         if (sender !== null) {
@@ -138,7 +138,7 @@ const Home = ({ user, logout }) => {
           setConversations((prev) => [newConvo, ...prev]);
         }
         let updatedConversations = conversations.map((convo) => {
-            const  tempCopy = {...convo, messages: [...convo.messages]}
+            const tempCopy = {...convo, messages: [...convo.messages]};
             if (convo.id === message.conversationId) {
               tempCopy.messages.push(message);
               tempCopy.latestMessageText = message.text;
@@ -178,7 +178,6 @@ const Home = ({ user, logout }) => {
       } else {
         return convo;
       }
-
     });
     setConversations(readConversations);
   }, [user, conversations, setConversations])
@@ -217,7 +216,6 @@ const Home = ({ user, logout }) => {
   }, []);
 
   // Lifecycle
-
   useEffect(() => {
     // Socket init
     socket.on("add-online-user", addOnlineUser);

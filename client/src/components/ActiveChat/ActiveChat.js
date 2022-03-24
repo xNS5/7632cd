@@ -38,6 +38,17 @@ const ActiveChat = ({
     return obj !== {} && obj !== undefined;
   };
 
+  const handleClick = async (conversation) => {
+    const lastMessage = conversation.messages[conversation.messages.length - 1];
+    if (lastMessage.senderId !== user.id && lastMessage.readStatus === false) {
+      const reqBody = {
+        conversationId: conversation.id,
+        senderId: conversation.otherUser.id
+      }
+      await postRead(reqBody)
+    }
+  };
+
   return (
     <Box className={classes.root}>
       {isConversation(conversation) && conversation.otherUser && (
@@ -54,12 +65,12 @@ const ActiveChat = ({
                   otherUser={conversation.otherUser}
                   userId={user.id}
                 />
-                <Input
+                <Input onClick={() => handleClick(conversation)}
                   otherUser={conversation.otherUser}
                   conversationId={conversation.id || null}
                   user={user}
                   postMessage={postMessage}
-                  postRead={postRead}
+                  clickHandler={handleClick(conversation)}
                 />
               </>
             )}
