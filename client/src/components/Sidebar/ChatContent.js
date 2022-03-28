@@ -20,10 +20,11 @@ const useStyles = makeStyles((theme) => ({
     overflow: "hidden",
     whiteSpace: "nowrap",
     textOverflow: "ellipsis",
-    maxWidth: "180px"
+    maxWidth: "150px"
   },
   previewWrapper: {
-    display: "flex"
+    display: "flex",
+    maxWidth: "200px",
   },
   unread: {
     fontWeight: "bold",
@@ -31,17 +32,18 @@ const useStyles = makeStyles((theme) => ({
   },
   unreadCircle: {
     height: 20,
-    width: 20,
-    backgroundColor: "#2a9df4",
-    borderRadius: "50%",
-    display: "inline-block",
+    width: "fit-content",
     marginLeft: 15,
-    textAlign: "center"
+    borderRadius: "1.5em",
+    display: "inline-block",
+    backgroundColor: "#2a9df4",
+    textAlign: "center",
   },
   unreadCount: {
     textAlign: "center",
+    width: "fit-content",
     color: "white",
-    marginTop: 10,
+    padding: "0.5em 0.5em"
   }
 }));
 
