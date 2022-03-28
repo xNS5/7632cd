@@ -24,7 +24,7 @@ const ActiveChat = ({
   conversations,
   activeConversation,
   postMessage,
-  postRead
+  postRead,
 }) => {
   const classes = useStyles();
 
@@ -38,14 +38,16 @@ const ActiveChat = ({
     return obj !== {} && obj !== undefined;
   };
 
-  const handleClick = async (conversation) => {
-    const lastMessage = conversation.messages[conversation.messages.length - 1];
-    if (lastMessage.senderId !== user.id && lastMessage.readStatus === false) {
-      const reqBody = {
-        conversationId: conversation.id,
-        senderId: conversation.otherUser.id
+  // Checks the most recent message to see if it's marked as "read" and if the sender is the other person. If it is, it marks the convo as read on the client side and emits 'mark-read' on the socket.
+  const clickHandler = async (conversation) => {
+    if(conversation && conversation.messages.length > 0){
+      const mostRecentMessage = conversation.messages[conversation.messages.length - 1]
+      if (mostRecentMessage.readStatus === false && mostRecentMessage.senderId !== user.id) {
+        const reqBody = {
+          conversationId: conversation.id
+        }
+        await postRead(reqBody)
       }
-      await postRead(reqBody)
     }
   };
 
@@ -65,12 +67,12 @@ const ActiveChat = ({
                   otherUser={conversation.otherUser}
                   userId={user.id}
                 />
-                <Input onClick={() => handleClick(conversation)}
+                <Input
                   otherUser={conversation.otherUser}
                   conversationId={conversation.id || null}
                   user={user}
                   postMessage={postMessage}
-                  clickHandler={handleClick(conversation)}
+                  onClick={clickHandler(conversation)}
                 />
               </>
             )}

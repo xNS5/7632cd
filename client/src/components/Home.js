@@ -92,6 +92,7 @@ const Home = ({ user, logout }) => {
     try{
       if(body.conversationId){
         const data = await saveRead(body);
+        markConvoAsRead(body);
         sendRead(data)
       }
     } catch(error) {
@@ -125,7 +126,7 @@ const Home = ({ user, logout }) => {
   );
 
   const addMessageToConversation = useCallback(
-      async (data) => {
+      (data) => {
         // if sender isn't null, that means the message needs to be put in a brand new convo
         const { message, sender = null } = data;
         if (sender !== null) {
@@ -136,43 +137,48 @@ const Home = ({ user, logout }) => {
           };
           newConvo.latestMessageText = message.text;
           setConversations((prev) => [newConvo, ...prev]);
-        }
-        let updatedConversations = conversations.map((convo) => {
-            const tempCopy = {...convo, messages: [...convo.messages]};
+        } else {
+          let updatedConversations = conversations.map((convo) => {
             if (convo.id === message.conversationId) {
+              const tempCopy = {...convo, messages: [...convo.messages]};
               tempCopy.messages.push(message);
               tempCopy.latestMessageText = message.text;
+              return tempCopy;
+            } else {
+              return convo;
             }
-           return tempCopy
           });
-        // Reordering the messages according to the conversation ID.
-        updatedConversations.forEach((convo, i) => {
-          if(convo.id === message.conversationId){
-            updatedConversations.splice(i, 1);
-            updatedConversations.unshift(convo);
+          // Reordering the messages based on the most recent conversation if there is more than one conversation.
+          if(updatedConversations.length > 1) {
+            updatedConversations.forEach((convo, i) => {
+              if(convo.id === message.conversationId){
+                updatedConversations.splice(i, 1);
+                updatedConversations.unshift(convo);
+              }
+            })
           }
-        })
-        setConversations(updatedConversations);
+          setConversations(updatedConversations);
+        }
       },
       [setConversations, conversations],
   );
 
   const markConvoAsRead = useCallback((data) => {
-    const conversationId = data['conversationId'];
+    const { conversationId } = data;
     const readConversations = conversations.map((convo) => {
       if(convo.id === conversationId){
         let tempCopy = {...convo, messages: [...convo.messages]}
-        let isMarked = false;
-        for(let i = tempCopy.messages.length-1; i>= 0; i--){
-          if(tempCopy.messages[i].senderId === user.id){
-            if(isMarked === false){
-              tempCopy.messages[i].readStatus = true;
-              isMarked = true;
-            } else if(isMarked && tempCopy.messages[i].readStatus){
+        let numMessages = tempCopy.messages.length
+        if(numMessages > 1){
+          tempCopy.messages[numMessages-1].readStatus = true;
+          for(let i = numMessages-2; i>= 0; i--){
+            if(tempCopy.messages[i].readStatus === true){
               tempCopy.messages[i].readStatus = false;
-              return tempCopy;
+              break;
             }
           }
+        } else {
+          tempCopy.messages[0].readStatus = true;
         }
         return tempCopy;
       } else {
@@ -180,8 +186,7 @@ const Home = ({ user, logout }) => {
       }
     });
     setConversations(readConversations);
-  }, [user, conversations, setConversations])
-
+  }, [conversations, setConversations])
 
   const setActiveChat = (username) => {
     setActiveConversation(username);

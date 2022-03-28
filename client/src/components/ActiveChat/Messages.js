@@ -18,6 +18,7 @@ const Messages= (props) => {
                 time={time}
                 text={message.text}
                 otherUser={otherUser}
+                read={message.readStatus}
             />
         );
       })}

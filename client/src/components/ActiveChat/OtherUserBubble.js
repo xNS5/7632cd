@@ -29,9 +29,15 @@ const useStyles = makeStyles(() => ({
     letterSpacing: -0.2,
     padding: 8,
   },
+  readMarker: {
+    height: 'auto',
+    width: 20,
+    marginTop: 10,
+    marginLeft: 10,
+  }
 }));
 
-const OtherUserBubble = ({ text, time, otherUser }) => {
+const OtherUserBubble = ({ text, time, read, otherUser }) => {
   const classes = useStyles();
 
   return (
@@ -48,6 +54,7 @@ const OtherUserBubble = ({ text, time, otherUser }) => {
         <Typography className={classes.usernameDate}>
           {otherUser.username} {time}
         </Typography>
+       { read === true  ?  <Avatar alt={otherUser.username} src={otherUser.photoUrl} className={classes.readMarker} /> : null}
       </Box>
     </Box>
   );

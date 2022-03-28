@@ -29,7 +29,7 @@ const useStyles = makeStyles(() => ({
     height: 'auto',
     width: 20,
     marginTop: 10,
-    float: 'right'
+    marginLeft: 10,
   }
 }));
 

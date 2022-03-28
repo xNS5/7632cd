@@ -15,7 +15,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const Input = ({ otherUser, conversationId, user, postMessage, clickHandler}) => {
+const Input = ({ otherUser, conversationId, user, postMessage}) => {
   const classes = useStyles();
   const [text, setText] = useState('');
 
@@ -39,7 +39,7 @@ const Input = ({ otherUser, conversationId, user, postMessage, clickHandler}) =>
   };
 
   return (
-    <form className={classes.root} onSubmit={handleSubmit} onClick={clickHandler}>
+    <form className={classes.root} onSubmit={handleSubmit}>
       <FormControl fullWidth hiddenLabel>
         <FilledInput
           classes={{ root: classes.input }}
