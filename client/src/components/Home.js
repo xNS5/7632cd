@@ -55,7 +55,7 @@ const Home = ({ user, logout }) => {
   };
 
   const saveRead = async (body) => {
-    const { data } = await axios.post("/api/messages/markread", body);
+    const { data } = await axios.put("/api/messages/read-status", body);
     return data;
   }
 
@@ -70,7 +70,8 @@ const Home = ({ user, logout }) => {
 
   const sendRead = (data) => {
     socket.emit("mark-read", {
-      conversationId: data.message.conversationId
+      conversationId: data.message.conversationId,
+      senderId: user.id
     });
   }
 
@@ -170,15 +171,15 @@ const Home = ({ user, logout }) => {
         let tempCopy = {...convo, messages: [...convo.messages]}
         let numMessages = tempCopy.messages.length
         if(numMessages > 1){
-          tempCopy.messages[numMessages-1].readStatus = true;
-          for(let i = numMessages-2; i>= 0; i--){
-            if(tempCopy.messages[i].readStatus === true){
-              tempCopy.messages[i].readStatus = false;
+          tempCopy.messages[numMessages-1].isRead = true;
+          for(let i = numMessages-2; i >= 0; i--){
+            if(tempCopy.messages[i].isRead === true){
+              tempCopy.messages[i].isRead = false;
               break;
             }
           }
         } else {
-          tempCopy.messages[0].readStatus = true;
+          tempCopy.messages[0].isRead = true;
         }
         return tempCopy;
       } else {

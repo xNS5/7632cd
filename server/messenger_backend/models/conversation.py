@@ -13,11 +13,12 @@ class Conversation(utils.CustomModel):
     user2 = models.ForeignKey(
         User, on_delete=models.CASCADE, db_column="user2Id", related_name="+", 
     )
+    unreadMessageCount = models.PositiveSmallIntegerField(null=False, default=0)
     createdAt = models.DateTimeField(auto_now_add=True, db_index=True)
     updatedAt = models.DateTimeField(auto_now=True)
 
     # find conversation given two user Ids
-    def find_conversation(user1Id, user2Id):
+    def find_conversation(self, user1Id, user2Id):
         # return conversation or None if it doesn't exist
         try:
             return Conversation.objects.get(

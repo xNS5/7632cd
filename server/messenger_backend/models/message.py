@@ -7,7 +7,7 @@ from .conversation import Conversation
 class Message(utils.CustomModel):
     text = models.TextField(null=False)
     senderId = models.IntegerField(null=False)
-    readStatus = models.BooleanField(null=False, default=False)
+    isRead = models.BooleanField(null=False, default=False)
     conversation = models.ForeignKey(
         Conversation,
         on_delete=models.CASCADE,

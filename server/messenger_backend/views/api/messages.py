@@ -25,6 +25,8 @@ class Messages(APIView):
             # if we already know conversation id, we can save time and just add it to message and return
             if conversation_id:
                 conversation = Conversation.objects.filter(id=conversation_id).first()
+                conversation.unreadMessageCount += 1
+                conversation.save()
                 message = Message(
                     senderId=sender_id, text=text, conversation=conversation
                 )

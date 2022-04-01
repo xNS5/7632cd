@@ -56,7 +56,7 @@ const ChatContent = ({ conversation }) => {
   const countUnread = () => {
     let count = 0;
     const messages = conversation.messages;
-    for(let i = messages.length-1; i >= 0 && messages[i].senderId === otherUser.id && messages[i].readStatus === false; i--){
+    for(let i = messages.length-1; i >= 0 && messages[i].senderId === otherUser.id && messages[i].isRead === false; i--){
       count+=1;
     }
     return count;
@@ -70,17 +70,15 @@ const ChatContent = ({ conversation }) => {
         <Typography className={classes.username}>
           {otherUser.username}
         </Typography>
-        <div className={classes.previewWrapper}>
+        <Box className={classes.previewWrapper}>
           <Typography className={`${classes.previewText} ${unread > 0 ? classes.unread : ""}`}>
             {latestMessageText}
           </Typography>
-          {unread > 0 ?
+          {unread > 0 &&
               <span className={classes.unreadCircle}>
                   <span className={classes.unreadCount}>{unread}</span>
-              </span>
-              :
-              null}
-        </div>
+              </span> }
+        </Box>
       </Box>
     </Box>
   );

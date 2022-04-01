@@ -40,11 +40,12 @@ const ActiveChat = ({
 
   // Checks the most recent message to see if it's marked as "read" and if the sender is the other person. If it is, it marks the convo as read on the client side and emits 'mark-read' on the socket.
   const clickHandler = async (conversation) => {
-    if(conversation && conversation.messages.length > 0){
+    if(conversation.messages?.length > 0){
       const mostRecentMessage = conversation.messages[conversation.messages.length - 1]
-      if (mostRecentMessage.readStatus === false && mostRecentMessage.senderId !== user.id) {
+      if (mostRecentMessage.isRead === false && mostRecentMessage.senderId !== user.id) {
         const reqBody = {
-          conversationId: conversation.id
+          conversationId: conversation.id,
+          senderId: user.id
         }
         await postRead(reqBody)
       }
