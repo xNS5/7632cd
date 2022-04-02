@@ -34,9 +34,10 @@ class Conversations(APIView):
             conversations_response = []
 
             for convo in conversations:
+                lastReadDate = convo.messages.filter(isRead=True).first().createdAt
                 convo_dict = {
                     "id": convo.id,
-                    "unreadMessageCount": convo.unreadMessageCount,
+                    "unreadMessageCount": convo.messages.filter(createdAt__gt=lastReadDate).count(),
                     "messages": [
                         message.to_dict(["id", "text", "senderId", "createdAt", "isRead"])
                         for message in convo.messages.all()
