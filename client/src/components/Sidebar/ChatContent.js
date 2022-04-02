@@ -1,8 +1,8 @@
 import React from "react";
-import { Box, Typography } from "@material-ui/core";
+import {Badge, Box, Typography} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
     justifyContent: "space-between",
@@ -30,20 +30,10 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
     color: "#000000"
   },
-  unreadCircle: {
-    height: 20,
-    width: "fit-content",
-    marginLeft: 15,
-    borderRadius: "1.5em",
-    display: "inline-block",
-    backgroundColor: "#2a9df4",
-    textAlign: "center",
-  },
-  unreadCount: {
+  unreadCountWrapper: {
     textAlign: "center",
     width: "fit-content",
-    color: "white",
-    padding: "0.5em 0.5em"
+    padding: "1em 2em"
   }
 }));
 
@@ -53,16 +43,7 @@ const ChatContent = ({ conversation }) => {
   const { otherUser } = conversation;
   const latestMessageText = conversation.id && conversation.latestMessageText;
 
-  const countUnread = () => {
-    let count = 0;
-    const messages = conversation.messages;
-    for(let i = messages.length-1; i >= 0 && messages[i].senderId === otherUser.id && messages[i].isRead === false; i--){
-      count+=1;
-    }
-    return count;
-  }
-
-  const unread = countUnread();
+  const unreadCount = 1000;
 
   return (
     <Box className={classes.root}>
@@ -71,15 +52,14 @@ const ChatContent = ({ conversation }) => {
           {otherUser.username}
         </Typography>
         <Box className={classes.previewWrapper}>
-          <Typography className={`${classes.previewText} ${unread > 0 ? classes.unread : ""}`}>
+          <Typography className={`${classes.previewText} ${unreadCount > 0 ? classes.unread : ""}`}>
             {latestMessageText}
           </Typography>
-          {unread > 0 &&
-              <span className={classes.unreadCircle}>
-                  <span className={classes.unreadCount}>{unread}</span>
-              </span> }
         </Box>
       </Box>
+      <span className={classes.unreadCountWrapper}>
+            <Badge badgeContent={unreadCount} color={"primary"} showZero={false}/>
+      </span>
     </Box>
   );
 };

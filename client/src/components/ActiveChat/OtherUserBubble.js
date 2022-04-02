@@ -54,7 +54,7 @@ const OtherUserBubble = ({ text, time, read, otherUser }) => {
         <Typography className={classes.usernameDate}>
           {otherUser.username} {time}
         </Typography>
-       { read === true  ?  <Avatar alt={otherUser.username} src={otherUser.photoUrl} className={classes.readMarker} /> : null}
+       { read === true  &&  <Avatar alt={otherUser.username} src={otherUser.photoUrl} className={classes.readMarker} /> }
       </Box>
     </Box>
   );

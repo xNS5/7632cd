@@ -67,13 +67,13 @@ const ActiveChat = ({
                   messages={conversation.messages}
                   otherUser={conversation.otherUser}
                   userId={user.id}
-                  onClick={clickHandler(conversation)}
                 />
                 <Input
                   otherUser={conversation.otherUser}
                   conversationId={conversation.id || null}
                   user={user}
                   postMessage={postMessage}
+                  onClick={clickHandler(conversation)}
                 />
               </>
             )}

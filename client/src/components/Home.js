@@ -109,6 +109,7 @@ const Home = ({ user, logout }) => {
           tempCopy.messages.push(message);
           tempCopy.latestMessageText = message.text;
           tempCopy.id = message.conversationId;
+          tempCopy.unreadMessageCount += 1;
           return  tempCopy;
         } else {
           return convo;
@@ -144,6 +145,7 @@ const Home = ({ user, logout }) => {
               const tempCopy = {...convo, messages: [...convo.messages]};
               tempCopy.messages.push(message);
               tempCopy.latestMessageText = message.text;
+              tempCopy.unreadMessageCount += 1;
               return tempCopy;
             } else {
               return convo;
