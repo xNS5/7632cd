@@ -34,15 +34,18 @@ class Conversations(APIView):
             conversations_response = []
 
             for convo in conversations:
-                lastReadDate = convo.messages.filter(isRead=True).first().createdAt
+                # If there is no lastReadMessage that means the conversation is new, and the number of unread messages
+                lastReadMessage = convo.messages.filter(isRead=True).first()
+                unreadMessageCount = convo.messages.count() if lastReadMessage is None else convo.messages.filter(createdAt__gt=lastReadMessage.createdAt).count()
                 convo_dict = {
                     "id": convo.id,
-                    "unreadMessageCount": convo.messages.filter(createdAt__gt=lastReadDate).count(),
+                    "unreadMessageCount": unreadMessageCount,
                     "messages": [
                         message.to_dict(["id", "text", "senderId", "createdAt", "isRead"])
                         for message in convo.messages.all()
                     ],
                 }
+
 
                 # set properties for notification count and latest message preview
                 convo_dict["latestMessageText"] = convo_dict["messages"][-1]["text"]
