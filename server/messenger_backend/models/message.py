@@ -2,12 +2,17 @@ from django.db import models
 
 from . import utils
 from .conversation import Conversation
+from .user import User
 
 
 class Message(utils.CustomModel):
     text = models.TextField(null=False)
     senderId = models.IntegerField(null=False)
-    readStatus = models.BooleanField(null=False, default=False)
+    readStatus = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        db_column="readBy",
+    )
     conversation = models.ForeignKey(
         Conversation,
         on_delete=models.CASCADE,
