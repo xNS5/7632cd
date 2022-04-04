@@ -105,11 +105,13 @@ const Home = ({ user, logout }) => {
     (recipientId, message) => {
       let newConversations = conversations.map((convo, i) => {
         if (convo.otherUser.id === recipientId) {
-          const tempCopy = {...convo, messages: [...convo.messages]};
+          const tempCopy = {...convo,
+            id: message.conversationId,
+            latestMessageText: message.text,
+            unreadMessageCount: 1,
+            messages: [...convo.messages]
+          };
           tempCopy.messages.push(message);
-          tempCopy.latestMessageText = message.text;
-          tempCopy.id = message.conversationId;
-          tempCopy.unreadMessageCount += 1;
           return  tempCopy;
         } else {
           return convo;
@@ -134,6 +136,7 @@ const Home = ({ user, logout }) => {
         if (sender !== null) {
           const newConvo = {
             id: message.conversationId,
+            unreadMessageCount: 1,
             otherUser: sender,
             messages: [message],
           };
@@ -142,10 +145,12 @@ const Home = ({ user, logout }) => {
         } else {
           let updatedConversations = conversations.map((convo) => {
             if (convo.id === message.conversationId) {
-              const tempCopy = {...convo, messages: [...convo.messages]};
+              const tempCopy = {
+                ...convo,
+                unreadMessageCount: (convo.otherUser.username !== activeConversation) ? (convo.unreadMessageCount += 1) : 0,
+                messages: [...convo.messages]
+              };
               tempCopy.messages.push(message);
-              tempCopy.latestMessageText = message.text;
-              tempCopy.unreadMessageCount += 1;
               return tempCopy;
             } else {
               return convo;
@@ -163,7 +168,7 @@ const Home = ({ user, logout }) => {
           setConversations(updatedConversations);
         }
       },
-      [setConversations, conversations],
+      [ activeConversation, setConversations, conversations],
   );
 
   const markConvoAsRead = useCallback((data) => {
@@ -172,16 +177,15 @@ const Home = ({ user, logout }) => {
       if(convo.id === conversationId){
         let tempCopy = {...convo, messages: [...convo.messages]}
         let numMessages = tempCopy.messages.length
-        if(numMessages > 1){
-          tempCopy.messages[numMessages-1].isRead = true;
-          for(let i = numMessages-2; i >= 0; i--){
-            if(tempCopy.messages[i].isRead === true){
-              tempCopy.messages[i].isRead = false;
-              break;
+        tempCopy.messages[(numMessages > 0 ? numMessages : 1) - 1].isRead = true;
+        for(let i = numMessages-2; i >= 0; i--){
+          if(tempCopy.messages[i].isRead){
+            tempCopy.messages[i].isRead = {
+              ...tempCopy.messages[i],
+              isRead: false
             }
+            break;
           }
-        } else {
-          tempCopy.messages[0].isRead = true;
         }
         return tempCopy;
       } else {
@@ -258,7 +262,6 @@ const Home = ({ user, logout }) => {
     const fetchConversations = async () => {
       try {
         const { data } = await axios.get("/api/conversations");
-
         setConversations(data);
       } catch (error) {
         console.error(error);

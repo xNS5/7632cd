@@ -37,13 +37,10 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const ChatContent = ({ conversation }) => {
+const ChatContent = ({ conversation, unreadMessageCount }) => {
   const classes = useStyles();
-
   const { otherUser } = conversation;
   const latestMessageText = conversation.id && conversation.latestMessageText;
-
-  const unreadCount = 1000;
 
   return (
     <Box className={classes.root}>
@@ -52,14 +49,16 @@ const ChatContent = ({ conversation }) => {
           {otherUser.username}
         </Typography>
         <Box className={classes.previewWrapper}>
-          <Typography className={`${classes.previewText} ${unreadCount > 0 ? classes.unread : ""}`}>
+          <Typography className={`${classes.previewText} ${unreadMessageCount > 0 ? classes.unread : ""}`}>
             {latestMessageText}
           </Typography>
         </Box>
       </Box>
-      <span className={classes.unreadCountWrapper}>
-            <Badge badgeContent={unreadCount} color={"primary"} showZero={false}/>
-      </span>
+      {unreadMessageCount > 0 &&
+        <span className={classes.unreadCountWrapper}>
+            <Badge badgeContent={unreadMessageCount} color={"primary"} showZero={false}/>
+        </span>
+      }
     </Box>
   );
 };

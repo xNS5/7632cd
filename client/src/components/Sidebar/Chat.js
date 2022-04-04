@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { Box } from '@material-ui/core';
 import { BadgeAvatar, ChatContent } from '../Sidebar';
 import { makeStyles } from '@material-ui/core/styles';
@@ -20,21 +20,22 @@ const useStyles = makeStyles((theme) => ({
 const Chat = ({ user, conversation, setActiveChat }) => {
   const classes = useStyles();
   const { otherUser } = conversation;
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(0)
   const lastMessage = conversation.messages[conversation.messages.length-1];
 
   const handleClick = async (conversation) => {
-    setUnreadCount(0);
+    if(conversation.unreadMessageCount > 0){
+      conversation.unreadMessageCount = 0;
+      setUnreadCount(0);
+    }
     await setActiveChat(conversation.otherUser.username);
   };
 
-  const unread = (conversation) => {
-    if(conversation?.unreadMessageCount > unreadCount && lastMessage.senderId !== user.id){
+  useEffect(() => {
+    if(conversation.unreadMessageCount > unreadCount && lastMessage.senderId !== user.id){
       setUnreadCount(conversation.unreadMessageCount)
     }
-  }
-
-  console.log(unreadCount)
+  }, [lastMessage, user, unreadCount, setUnreadCount, conversation])
 
   return (
     <Box onClick={() => handleClick(conversation)} className={classes.root}>
@@ -44,7 +45,7 @@ const Chat = ({ user, conversation, setActiveChat }) => {
         online={otherUser.online}
         sidebar={true}
       />
-      <ChatContent conversation={conversation} user={user} unreadCount={unread} />
+      <ChatContent conversation={conversation} user={user} unreadMessageCount={unreadCount}/>
     </Box>
   );
 };

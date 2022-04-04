@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useMemo} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Box } from '@material-ui/core';
 import { Input, Header, Messages } from './index';
@@ -28,29 +28,38 @@ const ActiveChat = ({
 }) => {
   const classes = useStyles();
 
-  const conversation = conversations
-    ? conversations.find(
-        (conversation) => conversation.otherUser.username === activeConversation
-      )
-    : {};
+  const conversation = useMemo(() => {
+    return conversations
+        ? conversations.find(
+            (conversation) => conversation.otherUser.username === activeConversation
+        )
+        : {};
+  }, [activeConversation, conversations])
 
   const isConversation = (obj) => {
     return obj !== {} && obj !== undefined;
   };
 
   // Checks the most recent message to see if it's marked as "read" and if the sender is the other person. If it is, it marks the convo as read on the client side and emits 'mark-read' on the socket.
-  const clickHandler = async (conversation) => {
-    if(conversation.messages?.length > 0){
-      const mostRecentMessage = conversation.messages[conversation.messages.length - 1]
-      if (mostRecentMessage.isRead === false && mostRecentMessage.senderId !== user.id) {
-        const reqBody = {
-          conversationId: conversation.id,
-          senderId: user.id
+  useEffect(() => {
+    const activeConversationHandler = async (conversation) => {
+      if(conversation?.messages.length > 0) {
+        try {
+          const mostRecentMessage = conversation.messages[conversation.messages.length - 1]
+          if (!mostRecentMessage.isRead && mostRecentMessage.senderId !== user.id) {
+            const reqBody = {
+              conversationId: conversation.id,
+              senderId: user.id
+            }
+            await postRead(reqBody)
+          }
+        } catch (error) {
+          console.error(error);
         }
-        await postRead(reqBody)
       }
     }
-  };
+    activeConversationHandler(conversation);
+  }, [user, postRead, conversation])
 
   return (
     <Box className={classes.root}>
@@ -73,7 +82,6 @@ const ActiveChat = ({
                   conversationId={conversation.id || null}
                   user={user}
                   postMessage={postMessage}
-                  onClick={clickHandler(conversation)}
                 />
               </>
             )}
