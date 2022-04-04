@@ -25,13 +25,14 @@ class ReadStatus(APIView):
                 else:
                     user_messages = Message.objects.filter(conversation_id=conversation_id)
                     most_recent = user_messages.last()
+                    last_unread = user_messages.filter(isRead=True).last()
                     if most_recent and not most_recent.isRead:
-                        last_unread = user_messages.filter(isRead=True).last()
-                        if last_unread and last_unread.id != most_recent.id:
-                            last_unread.isRead = False
-                            last_unread.save()
                         most_recent.isRead = True
                         most_recent.save()
+                    if last_unread and last_unread.id != most_recent.id:
+                        last_unread.isRead = False
+                        last_unread.save()
+
                     return JsonResponse({"message": most_recent.to_dict() if most_recent else ""})
             else:
                 return HttpResponse(status=204)

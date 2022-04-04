@@ -137,16 +137,17 @@ const Home = ({ user, logout }) => {
           const newConvo = {
             id: message.conversationId,
             unreadMessageCount: 1,
+            latestMessageText: message.text,
             otherUser: sender,
             messages: [message],
           };
-          newConvo.latestMessageText = message.text;
           setConversations((prev) => [newConvo, ...prev]);
         } else {
           let updatedConversations = conversations.map((convo) => {
             if (convo.id === message.conversationId) {
               const tempCopy = {
                 ...convo,
+                latestMessageText: message.text,
                 unreadMessageCount: (convo.otherUser.username !== activeConversation) ? (convo.unreadMessageCount += 1) : 0,
                 messages: [...convo.messages]
               };
@@ -178,13 +179,12 @@ const Home = ({ user, logout }) => {
         let tempCopy = {...convo, messages: [...convo.messages]}
         let numMessages = tempCopy.messages.length
         tempCopy.messages[(numMessages > 0 ? numMessages : 1) - 1].isRead = true;
-        for(let i = numMessages-2; i >= 0; i--){
-          if(tempCopy.messages[i].isRead){
-            tempCopy.messages[i].isRead = {
-              ...tempCopy.messages[i],
-              isRead: false
+        if(numMessages > 1){
+          for(let i = numMessages-2; i >= 0; i--){
+            if(tempCopy.messages[i].isRead){
+              tempCopy.messages[i].isRead = false;
+              break;
             }
-            break;
           }
         }
         return tempCopy;
