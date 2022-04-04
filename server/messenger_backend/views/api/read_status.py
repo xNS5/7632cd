@@ -4,7 +4,7 @@ from messenger_backend.models import Message, Conversation
 from rest_framework.views import APIView
 
 
-class MarkRead(APIView):
+class ReadStatus(APIView):
 
     def put(self, request):
         try:
