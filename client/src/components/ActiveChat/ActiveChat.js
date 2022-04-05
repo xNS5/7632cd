@@ -40,7 +40,7 @@ const ActiveChat = ({
     return obj !== {} && obj !== undefined;
   };
 
-  // Checks the most recent message to see if it's marked as "read" and if the sender is the other person. If it is, it marks the convo as read on the client side and emits 'mark-read' on the socket.
+
   useEffect(() => {
     const activeConversationHandler = async (conversation) => {
       if(conversation?.messages.length > 0) {
