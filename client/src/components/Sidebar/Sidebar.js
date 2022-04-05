@@ -27,6 +27,7 @@ const Sidebar = ({
 }) => {
   const classes = useStyles();
 
+
   return (
     <Box className={classes.root}>
       <CurrentUser user={user} />
@@ -42,6 +43,7 @@ const Sidebar = ({
               conversation={conversation}
               key={conversation.otherUser.username}
               setActiveChat={setActiveChat}
+              user={user}
             />
           );
         })}
